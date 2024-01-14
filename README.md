@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./app-icon.png" width="156" height="156" />
+  <img src="./public/favicon.ico" width="156" height="156" />
 
   <h1>Hoyo Game Starter</h1>
 

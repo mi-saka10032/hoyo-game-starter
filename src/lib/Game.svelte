@@ -3,6 +3,7 @@
   import { invoke } from "@tauri-apps/api/tauri";
   import { KButton } from "@ikun-ui/button";
   import { KMessage } from "@ikun-ui/message";
+  import { KTooltip } from "@ikun-ui/tooltip";
   import { Invoker } from "../enum/invoker";
   import { getStorage, setStorage } from "../lib/persist";
 
@@ -120,17 +121,24 @@
 
 <section class="relative flex flex-col opacity-75 hover:opacity-100">
   <img src={bg} alt={gameEnName} class="w-full h-full" />
-  <div class="x-middle top-3 w-full flex flex-col items-center space-y-1">
+  <div
+    class="x-middle top-3 flex flex-col space-y-1 items-center w-full text-center"
+  >
     <h2>{gameCnName}</h2>
     {#if gameInfo.root.length > 0}
       <p>已绑定{gameCnName}：</p>
-      <p class="px-10 truncate" title={gameInfo.root}>
-        文件夹根目录：{gameInfo.root}
-      </p>
+      <KTooltip placement="bottom" content={gameInfo.root}>
+        <p slot="triggerEl" class="max-w-md truncate">文件夹根目录：{gameInfo.root}</p>
+      </KTooltip>
       {#if pathValidation}
-        <p class="px-10 truncate" title={`${gameInfo.game}\\${gameInfo.exe}`}>
-          exe文件目录：{`${gameInfo.game}\\${gameInfo.exe}`}
-        </p>
+        <KTooltip
+          placement="bottom"
+          content={`${gameInfo.game}\\${gameInfo.exe}`}
+        >
+          <p slot="triggerEl" class="max-w-md truncate">
+            exe文件目录：{`${gameInfo.game}\\${gameInfo.exe}`}
+          </p>
+        </KTooltip>
       {:else}
         <div>
           <p class="mb-2">无效的{gameCnName}游戏目录！</p>

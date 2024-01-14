@@ -16,6 +16,7 @@
     "@ikun-ui/button": "^0.1.5",
     "@ikun-ui/form": "^0.1.5",
     "@ikun-ui/message": "^0.1.5",
+    "@ikun-ui/tooltip": "^0.1.5",
     "@tauri-apps/api": "^1.5.2"
   },
   "devDependencies": {
