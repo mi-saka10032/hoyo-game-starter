@@ -3,8 +3,8 @@
 
 use rfd::FileDialog;
 use serde::Serialize;
-use std::path::Path;
 use std::process::Command;
+use std::{os::windows::process::CommandExt, path::Path};
 use tauri::{AppHandle, Manager, Window};
 
 mod tray;
