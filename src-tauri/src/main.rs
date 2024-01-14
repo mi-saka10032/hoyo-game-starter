@@ -3,9 +3,9 @@
 
 use rfd::FileDialog;
 use serde::Serialize;
-use tauri::{AppHandle, Window};
 use std::path::Path;
 use std::process::Command;
+use tauri::{AppHandle, Manager, Window};
 
 mod tray;
 
@@ -21,6 +21,12 @@ pub struct Hoyo {
 pub struct Appoint {
     game: String,
     exe: String,
+}
+
+#[derive(Clone, serde::Serialize)]
+struct Payload {
+    args: Vec<String>,
+    cwd: String,
 }
 
 // 强制切换窗口显示/隐藏
@@ -171,6 +177,11 @@ fn pick_folder(key: &str, title: &str) -> Hoyo {
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
+            app.emit_all("single-instance", Payload { args: argv, cwd })
+                .unwrap();
+            tray::show_window(app.get_window("main").unwrap());
+        }))
         .invoke_handler(tauri::generate_handler![
             pick_folder,
             open_exe,
