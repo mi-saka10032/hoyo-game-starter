@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    /* Language and Environment */
+    "target": "ES2020" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ] /* Specify a set of bundled library declaration files that describe the target runtime environment. */,
+    "jsx": "react-jsx" /* Specify what JSX code is generated. */,
+    "useDefineForClassFields": true /* Emit ECMAScript-standard-compliant class fields. */,
+    // "moduleDetection": "auto",                        /* Control what method is used to detect module-format JS files. */
+    /* Modules */
+    "module": "ESNext" /* Specify what module code is generated. */,
+    // "rootDir": "./",                                  /* Specify the root folder within your source files. */
+    "moduleResolution": "bundler" /* Specify how TypeScript looks up a file from a given module specifier. */,
+    "baseUrl": "./" /* Specify the base directory to resolve non-relative module names. */,
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    /* Interop Constraints */
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    /* Type Checking */
+    "strict": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true /* Skip type checking all .d.ts files. */,
+  },
+  "include": [
+    "src/types/*.d.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "vite.config.ts"
+  ],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
