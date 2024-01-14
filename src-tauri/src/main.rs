@@ -54,6 +54,7 @@ fn check_path_valid(dir: &str, file: &str) -> bool {
 #[tauri::command]
 fn check_game_status(process: &str) -> bool {
     let output = Command::new("cmd")
+        .creation_flags(0x08000000) // 隐藏cmd窗口
         .arg("/c")
         .arg(format!("tasklist | findstr {}", process))
         .output()
@@ -73,6 +74,7 @@ fn open_exe(dir: &str, file: &str) -> bool {
         return false;
     }
     let _ = Command::new("cmd")
+        .creation_flags(0x08000000) // 隐藏cmd窗口
         .arg("/c")
         .arg(format!("cd {} && start {}", dir, file))
         .spawn();
