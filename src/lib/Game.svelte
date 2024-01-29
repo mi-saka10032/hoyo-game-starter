@@ -130,7 +130,7 @@
     check_path();
   }
 
-  let unListen: UnlistenFn = null;
+  let unListen: UnlistenFn | null = null;
   onMount(async () => {
     const persist = getStorage(key);
     gameInfo.root = persist.root;
@@ -145,7 +145,7 @@
 
   onDestroy(() => {
     window.clearInterval(timer);
-    unListen();
+    unListen && unListen();
   });
 </script>
 
