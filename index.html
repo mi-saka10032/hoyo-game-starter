@@ -10,6 +10,7 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        user-select: none;
       }
     </style>
   </head>
@@ -17,5 +18,8 @@
   <body>
     <div id="app" class="w-full h-screen overflow-hidden rounded-xl bg-white"></div>
     <script type="module" src="/src/main.ts"></script>
+    <script>
+      document.oncontextmenu = () => false;
+    </script>
   </body>
 </html>

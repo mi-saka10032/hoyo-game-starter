@@ -5,4 +5,5 @@ export enum Invoker {
   check_game_status = "check_game_status",
   open_exe = "open_exe",
   change_window_status = "change_window_status",
+  check_local_version = "check_local_version"
 }

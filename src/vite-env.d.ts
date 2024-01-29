@@ -24,12 +24,24 @@ interface Hoyo extends AppointFile {
   root: string;
   launcher: string;
 }
+
+interface StaticResource {
+  data: {
+    game: {
+      latest: {
+        version: string
+      }
+    }
+    pre_download_game?: object
+  }
+}
+
 interface InvokeParam {
   [key: string]: any;
 }
 
 interface PickFolder extends InvokeParam {
-  key: string;
+  key: keyof typeof GameKey;
   title: string;
 }
 
@@ -44,4 +56,9 @@ interface GameProcess extends InvokeParam {
 
 interface WindowVisible extends InvokeParam {
   status: boolean;
+}
+
+interface LocalVersion extends InvokeParam {
+  key: keyof typeof GameKey;
+  installPath: string;
 }

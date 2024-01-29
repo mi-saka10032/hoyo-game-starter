@@ -1,7 +1,7 @@
 {
   "name": "hoyo-game-starter",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "米哈游游戏极速整合启动器",
   "license": "MIT",
@@ -13,10 +13,11 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@ikun-ui/button": "^0.1.5",
-    "@ikun-ui/form": "^0.1.5",
-    "@ikun-ui/message": "^0.1.5",
-    "@ikun-ui/tooltip": "^0.1.5",
+    "@ikun-ui/button": "0.1.5",
+    "@ikun-ui/form": "0.1.5",
+    "@ikun-ui/message": "0.1.5",
+    "@ikun-ui/tag": "0.1.5",
+    "@ikun-ui/tooltip": "0.1.5",
     "@tauri-apps/api": "^1.5.2"
   },
   "devDependencies": {

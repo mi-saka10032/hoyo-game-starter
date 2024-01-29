@@ -4,6 +4,7 @@
 use rfd::FileDialog;
 use serde::Serialize;
 use std::process::Command;
+use std::fs;
 use std::{os::windows::process::CommandExt, path::Path};
 use tauri::{AppHandle, Manager, Window};
 
@@ -177,6 +178,28 @@ fn pick_folder(key: &str, title: &str) -> Hoyo {
     }
 }
 
+#[tauri::command]
+fn check_local_version(key: &str, install_path: &str) -> String {
+    let mut config_path = "".to_string();
+    match key {
+        "bh3" => {
+            config_path = "\\Games\\config.ini".to_string();
+        }
+        "ys" => {
+            config_path = "\\Genshin Impact Game\\config.ini".to_string();
+        }
+        "star" => {
+            config_path = "\\Game\\config.ini".to_string();
+        }
+        _ => {}
+    }
+    if !check_path_valid(install_path, &config_path) {
+        return "".to_string();
+    }
+    let real_config_path = install_path.to_string() + &config_path.to_string();
+    return fs::read_to_string(real_config_path).unwrap();
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
@@ -190,7 +213,8 @@ fn main() {
             check_path_valid,
             check_game_status,
             appoint_file,
-            change_window_status
+            change_window_status,
+            check_local_version
         ])
         .system_tray(tray::menu())
         .on_system_tray_event(tray::handler)

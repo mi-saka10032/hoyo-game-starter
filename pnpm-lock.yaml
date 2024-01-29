@@ -6,16 +6,19 @@ settings:
 
 dependencies:
   '@ikun-ui/button':
-    specifier: ^0.1.5
+    specifier: 0.1.5
     version: 0.1.5(ansi-colors@4.1.3)(moment@2.30.1)
   '@ikun-ui/form':
-    specifier: ^0.1.5
+    specifier: 0.1.5
     version: 0.1.5(ansi-colors@4.1.3)(moment@2.30.1)
   '@ikun-ui/message':
-    specifier: ^0.1.5
+    specifier: 0.1.5
+    version: 0.1.5(ansi-colors@4.1.3)(moment@2.30.1)
+  '@ikun-ui/tag':
+    specifier: 0.1.5
     version: 0.1.5(ansi-colors@4.1.3)(moment@2.30.1)
   '@ikun-ui/tooltip':
-    specifier: ^0.1.5
+    specifier: 0.1.5
     version: 0.1.5(@popperjs/core@2.11.8)(ansi-colors@4.1.3)(moment@2.30.1)(svelte@4.2.8)
   '@tauri-apps/api':
     specifier: ^1.5.2
@@ -736,6 +739,17 @@ packages:
   /@ikun-ui/preset@0.1.5:
     resolution: {integrity: sha512-GieZ5FMj2awFQgdP3i/uYoQvoq1IMTunbph3QKEiYWxNsw72s52j3CTQRwNZsr/TmEoWhPcH2MZG9nsbCJatyg==}
     dev: true
+
+  /@ikun-ui/tag@0.1.5(ansi-colors@4.1.3)(moment@2.30.1):
+    resolution: {integrity: sha512-JtSbNzCmX1xT8fedLVXr9VtGyLaXw+TkllOHNCi0g1UQB4gAg4Qtd7Rwb9CHQOnZHF/Pva3SesOvatOcH3FzaQ==}
+    dependencies:
+      '@ikun-ui/icon': 0.1.5(ansi-colors@4.1.3)(moment@2.30.1)
+      '@ikun-ui/utils': 0.1.5
+      baiwusanyu-utils: 1.0.18(ansi-colors@4.1.3)(moment@2.30.1)
+    transitivePeerDependencies:
+      - ansi-colors
+      - moment
+    dev: false
 
   /@ikun-ui/tooltip@0.1.5(@popperjs/core@2.11.8)(ansi-colors@4.1.3)(moment@2.30.1)(svelte@4.2.8):
     resolution: {integrity: sha512-KIyFe1+X9qNnqN9BZ/blhJpe7O+SNeMNx9OwgJGGpWPRut2FHbNvI+4Pp+DL16gMxiZR2NKa0q4euEV3Nk0T7A==}
