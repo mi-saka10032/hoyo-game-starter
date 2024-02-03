@@ -2,7 +2,7 @@
 	import Header from './lib/Header.svelte';
   import Game from "./lib/Game.svelte";
   import HonKai3BG from "./assets/bh3.jpg";
-  import YuanShenBG from "./assets/ys.png";
+  import YuanShenBG from "./assets/ys.jpg";
   import StarRailBG from "./assets/star.jfif";
 
   const games: GameItem[] = [

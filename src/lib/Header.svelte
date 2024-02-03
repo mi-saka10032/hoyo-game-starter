@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang="ts" name="Header">
   import { appWindow } from "@tauri-apps/api/window";
   import Logo from '../assets/app-icon.png';
   import MinIcon from "../assets/min.svg";
