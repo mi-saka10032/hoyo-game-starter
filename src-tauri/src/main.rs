@@ -1,56 +1,29 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use rfd::FileDialog;
-use serde::Serialize;
-use std::process::Command;
-use std::fs;
-use std::{os::windows::process::CommandExt, path::Path};
-use tauri::{Manager, Window};
-
-mod tray;
 mod hoyo;
+mod tray;
 
-#[derive(Serialize)]
-pub struct Hoyo {
-    root: String,
-    launcher: String,
-    game: String,
-    exe: String,
-}
+use hoyo::HoyoProp;
+use std::{os::windows::process::CommandExt, process::Command};
+use tauri::{Manager, Window};
+use tray::{show_window, SingleInstancePayload, WINDOW_CMD_HIDE_CONSTANT};
 
-#[derive(Serialize)]
-pub struct Appoint {
-    game: String,
-    exe: String,
-}
-
-// 强制切换窗口显示/隐藏
+/** 改变窗口可见状态 */
 #[tauri::command]
 fn change_window_status(window: Window, status: bool) {
     if status {
-        tray::show_window(window);
+        show_window(window);
     } else {
         window.hide().unwrap();
     }
 }
 
-// 检测路径有效性
-#[tauri::command]
-fn check_path_valid(dir: &str, file: &str) -> bool {
-    if dir.len() == 0 || file.len() == 0 {
-        return false;
-    }
-    let file_path = dir.to_owned() + "\\" + file;
-    let res = Path::new(&file_path);
-    return res.exists();
-}
-
-// 检测游戏进程状态
+/** 检测游戏进程状态 */
 #[tauri::command]
 fn check_game_status(process: &str) -> bool {
     let output = Command::new("cmd")
-        .creation_flags(0x08000000) // 隐藏cmd窗口
+        .creation_flags(WINDOW_CMD_HIDE_CONSTANT) // 隐藏cmd窗口
         .arg("/c")
         .arg(format!("tasklist | findstr {}", process))
         .output()
@@ -62,154 +35,55 @@ fn check_game_status(process: &str) -> bool {
     };
 }
 
-// 检查文件路径有效性并调用cmd打开exe文件
+/** 检测路径有效性 */
 #[tauri::command]
-fn open_exe(dir: &str, file: &str) -> bool {
-    let res = check_path_valid(dir, file);
-    if !res {
-        return false;
-    }
-    let _ = Command::new("cmd")
-        .creation_flags(0x08000000) // 隐藏cmd窗口
-        .arg("/c")
-        .arg(format!("cd {} && start {}", dir, file))
-        .spawn();
-    return true;
-}
-
-// 手动指定游戏文件
-#[tauri::command]
-fn appoint_file() -> Appoint {
-    let path = FileDialog::new()
-        .set_title("手动指定游戏文件")
-        .set_directory("/")
-        .add_filter("exe", &["exe"])
-        .pick_file();
-    // 根路径
-    let mut game = "".to_string();
-    let mut exe = "".to_string();
-    if let Some(dir) = path {
-        if let Some(parent) = dir.parent() {
-            game = parent.display().to_string();
-        }
-        if let Some(file) = dir.file_name() {
-            exe = file.to_string_lossy().to_string()
-        }
-    };
-    // 文件名
-    Appoint { game, exe }
-}
-
-// 获取Hoyo游戏文件路径
-#[tauri::command]
-fn pick_folder(key: &str, title: &str) -> Hoyo {
-    let mut root = "".to_string();
-    let mut launcher = "".to_string();
-    let mut game = "".to_string();
-    let mut exe = "".to_string();
-    let mut long_title = "".to_string();
-    for i in 0..3 {
-        long_title = long_title + title;
-        if i == 2 {
-            long_title = long_title + "重要的事情说三遍";
-        }
-    }
-    let path = FileDialog::new()
-        .set_title(&long_title)
-        .set_directory("/")
-        .pick_folder();
-    // 插入文件夹路径
-    if let Some(dir) = path {
-        root = dir.display().to_string();
-    };
-    // 判空
-    if root.len() == 0 {
-        return Hoyo {
-            root,
-            launcher,
-            game,
-            exe,
-        };
-    }
-    launcher = "launcher.exe".to_string();
-    // match判断
-    match key {
-        "bh3" => {
-            game = root.to_string() + "\\Games";
-            exe = "BH3.exe".to_string();
-            Hoyo {
-                root,
-                launcher,
-                game,
-                exe,
-            }
-        }
-        "ys" => {
-            game = root.to_string() + "\\Genshin Impact Game";
-            exe = "YuanShen.exe".to_string();
-            Hoyo {
-                root,
-                launcher,
-                game,
-                exe,
-            }
-        }
-        "star" => {
-            game = root.to_string() + "\\Game";
-            exe = "StarRail.exe".to_string();
-            Hoyo {
-                root,
-                launcher,
-                game,
-                exe,
-            }
-        }
-        _ => Hoyo {
-            root,
-            launcher,
-            game,
-            exe,
-        },
-    }
+fn check_path_valid(path: &str, file: &str) -> bool {
+    HoyoProp::new(path, file).check_path_valid()
 }
 
 #[tauri::command]
-fn check_local_version(key: &str, install_path: &str) -> String {
-    let mut config_path = "".to_string();
-    match key {
-        "bh3" => {
-            config_path = "\\Games\\config.ini".to_string();
-        }
-        "ys" => {
-            config_path = "\\Genshin Impact Game\\config.ini".to_string();
-        }
-        "star" => {
-            config_path = "\\Game\\config.ini".to_string();
-        }
-        _ => {}
-    }
-    if !check_path_valid(install_path, &config_path) {
-        return "".to_string();
-    }
-    let real_config_path = install_path.to_string() + &config_path.to_string();
-    return fs::read_to_string(real_config_path).unwrap();
+fn open_exe_file(path: &str, file: &str) -> bool {
+    HoyoProp::new(path, file).open_exe_file()
 }
+
+#[tauri::command]
+fn pick_exe_file(path: &str, file: &str, need_check_config: bool) -> HoyoProp {
+    let mut prop = HoyoProp::new(path, file);
+    prop.specify_exe_file(need_check_config);
+    return prop;
+}
+
+#[tauri::command]
+fn pick_launcher_file(path: &str, file: &str) -> HoyoProp {
+    let mut prop = HoyoProp::new(path, file);
+    prop.specify_launcher_file();
+    return prop;
+}
+
+#[tauri::command]
+fn read_local_version(path: &str) -> String {
+    HoyoProp::new(path, "").read_local_version()
+}
+
 
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
-            app.emit_all("single-instance", tray::SingleInstancePayload { args: argv, cwd })
-                .unwrap();
+            app.emit_all(
+                "single-instance",
+                SingleInstancePayload { args: argv, cwd },
+            )
+            .unwrap();
             tray::show_window(app.get_window("main").unwrap());
         }))
         .invoke_handler(tauri::generate_handler![
-            pick_folder,
-            open_exe,
-            check_path_valid,
-            check_game_status,
-            appoint_file,
             change_window_status,
-            check_local_version
+            check_game_status,
+            check_path_valid,
+            open_exe_file,
+            pick_exe_file,
+            pick_launcher_file,
+            read_local_version,
         ])
         .system_tray(tray::menu())
         .on_system_tray_event(tray::handler)
