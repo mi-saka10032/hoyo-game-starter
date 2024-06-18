@@ -6,9 +6,10 @@ use serde::Serialize;
 use std::process::Command;
 use std::fs;
 use std::{os::windows::process::CommandExt, path::Path};
-use tauri::{AppHandle, Manager, Window};
+use tauri::{Manager, Window};
 
 mod tray;
+mod hoyo;
 
 #[derive(Serialize)]
 pub struct Hoyo {
@@ -24,15 +25,9 @@ pub struct Appoint {
     exe: String,
 }
 
-#[derive(Clone, serde::Serialize)]
-struct Payload {
-    args: Vec<String>,
-    cwd: String,
-}
-
 // 强制切换窗口显示/隐藏
 #[tauri::command]
-fn change_window_status(_: AppHandle, window: Window, status: bool) {
+fn change_window_status(window: Window, status: bool) {
     if status {
         tray::show_window(window);
     } else {
@@ -203,7 +198,7 @@ fn check_local_version(key: &str, install_path: &str) -> String {
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
-            app.emit_all("single-instance", Payload { args: argv, cwd })
+            app.emit_all("single-instance", tray::SingleInstancePayload { args: argv, cwd })
                 .unwrap();
             tray::show_window(app.get_window("main").unwrap());
         }))

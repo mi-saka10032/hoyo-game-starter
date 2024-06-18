@@ -2,6 +2,12 @@ use tauri::{
     AppHandle, CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, Window,
 };
 
+#[derive(Clone, serde::Serialize)]
+pub struct SingleInstancePayload {
+    pub args: Vec<String>,
+    pub cwd: String,
+}
+
 pub fn show_window(window: Window) {
     if !window.is_visible().unwrap() {
         window.show().unwrap();
