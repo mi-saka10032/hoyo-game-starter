@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Header from './lib/Header.svelte';
-  import Game from "./lib/Game.svelte";
+	import Header from '@/layouts/Header.svelte';
+  import Game from "@/layouts/Game.svelte";
   import HonKai3BG from "./assets/bh3.jpg";
   import YuanShenBG from "./assets/ys.jpg";
   import StarRailBG from "./assets/star.jfif";
@@ -9,21 +9,21 @@
     {
       key: "bh3",
       bg: HonKai3BG,
-      gameEnName: "Honkai Impact 3",
+      gameEnName: "Honkai Impact 3 or HYG Launcher",
       gameCnName: "崩坏3",
       processName: "BH3.exe",
     },
     {
       key: "ys",
       bg: YuanShenBG,
-      gameEnName: "Genshin Impact",
+      gameEnName: "Genshin Impact or HYG Launcher",
       gameCnName: "原神",
       processName: "YuanShen.exe",
     },
     {
       key: "star",
       bg: StarRailBG,
-      gameEnName: "Star Rail",
+      gameEnName: "Star Rail or HYG Launcher",
       gameCnName: "崩坏：星穹铁道",
       processName: "StarRail.exe",
     },

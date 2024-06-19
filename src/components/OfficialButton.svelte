@@ -1,16 +1,14 @@
 <script lang="ts" name="OfficialButton">
-  import { Invoker } from "@/enum/invoker";
   import { KButton } from "@ikun-ui/button";
   import { KMessage } from "@ikun-ui/message";
-  import { invoke } from "@tauri-apps/api";
-
-  export let dir: string;
-  export let file: string;
+  import { HoyoClass } from "@/lib";
+  
   export let cls: string;
 
+  export let hoyoClass: HoyoClass;
+
   async function openOfficialStarter() {
-    const param: CheckPath = { dir, file };
-    const flag = await invoke<boolean>(Invoker.open_exe, param);
+    const flag = await hoyoClass.openExeFile();
     if (flag) {
       KMessage({
         type: "success",

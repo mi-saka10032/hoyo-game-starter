@@ -1,15 +1,12 @@
 <script lang="ts" name="Game">
-  import { onMount, onDestroy } from "svelte";
-  import { invoke } from "@tauri-apps/api/tauri";
   import { type UnlistenFn, listen, TauriEvent } from "@tauri-apps/api/event";
-  import { Invoker } from "@/enum/invoker";
-  import { getStorage, setStorage } from "../lib/persist";
-  import { checkResource } from "../api";
+  import { onMount, onDestroy } from "svelte";
+  import { checkResource } from "@/api";
+  import { HoyoClass, HoyoInterface, getStorage, setStorage } from "@/lib";
   import VersionTag from "@/components/VersionTag.svelte";
   import Directory from "@/components/Directory.svelte";
   import StarterButton from "@/components/StarterButton.svelte";
-  import OfficialButton from "./../components/OfficialButton.svelte";
-  import { HoyoClass, HoyoInterface } from "@/lib/core";
+  import OfficialButton from "@/components/OfficialButton.svelte";
 
   export let key: keyof typeof GameKey;
   export let bg: string;
@@ -17,37 +14,40 @@
   export let gameCnName: string;
   export let processName: string;
 
-  let gameInfo: HoyoInterface = {
-    root: "",
-    launcher: "",
-    game: "",
-    exe: "",
-  };
-  let hoyoClass: HoyoClass;
+  let hoyoClass: HoyoClass = new HoyoClass(
+    {
+      root: "",
+      launcher: "",
+      game: "",
+      exe: "",
+    },
+    processName
+  );
 
   let timer: number = 0;
-  /** 路径检测 */
-  let validation = false;
-  /** 进程状态 */
+
+  let launcherValidation = false;
+
+  let exeValidation = false;
+
   let processStatus: boolean = false;
+
   let version: string = "";
+
   let remoteVersion: string = "";
+
   let hasPreDownload: boolean = false;
 
   /** 游戏进程监听 */
   async function checkGameProcess() {
-    const gameProcess: GameProcess = { process: processName };
-    const flag = await invoke<boolean>(Invoker.check_game_status, gameProcess);
-    // 进程关闭
-    if (processStatus && !flag) {
+    const flag = await hoyoClass.checkGameStatus();
+    if (flag) {
+      // 进程开启
+      HoyoClass.changeWindowStatus(false);
+    } else {
       closeWatch();
-      const param: WindowVisible = { status: true };
-      void invoke(Invoker.change_window_status, param);
-    }
-    // 进程开启
-    else if (flag && !processStatus) {
-      const param: WindowVisible = { status: false };
-      void invoke(Invoker.change_window_status, param);
+      // 进程关闭
+      HoyoClass.changeWindowStatus(true);
     }
     processStatus = flag;
   }
@@ -63,13 +63,9 @@
 
   /** 检查本地游戏版本 */
   async function checkLocalVersion() {
-    const param: LocalVersion = {
-      key,
-      installPath: gameInfo.root,
-    };
-    const config = await invoke<string>(Invoker.check_local_version, param);
+    const configText = await hoyoClass.readLocalVersion();
     const reg = /game_version=(.*)/;
-    version = reg.exec(config)?.[1] ?? "";
+    version = reg.exec(configText)?.[1] ?? "";
   }
 
   /** 检查当前在线版本 */
@@ -81,21 +77,21 @@
 
   /** 检查路径正确性 */
   async function checkPath() {
-    const param: CheckPath = {
-      dir: gameInfo.game,
-      file: gameInfo.exe,
-    };
-    validation = await invoke<boolean>(Invoker.check_path_valid, param);
-    if (validation) {
+    [launcherValidation, exeValidation] = await Promise.all([
+      hoyoClass.checkLauncherPathValid(),
+      hoyoClass.checkExePathValid(),
+    ]);
+    if (launcherValidation || exeValidation) {
+      const gameInfo = hoyoClass.getHoyoInterface();
       setStorage(key, gameInfo);
       checkLocalVersion();
       checkRemoteVersion();
     }
   }
 
-  function handleBindPath(event: CustomEvent<Hoyo>) {
+  function handleSpecifyGamePath(event: CustomEvent<HoyoInterface>) {
     const result = event.detail;
-    gameInfo = result;
+    hoyoClass = new HoyoClass(result, processName);
     checkPath();
   }
 
@@ -106,8 +102,7 @@
 
   let unListen: UnlistenFn | null = null;
   onMount(async () => {
-    gameInfo = getStorage(key);
-    hoyoClass = new HoyoClass(gameInfo, processName);
+    hoyoClass = new HoyoClass(getStorage(key), processName);
     checkPath();
     unListen = await listen(TauriEvent.WINDOW_FOCUS, checkLocalVersion);
   });
@@ -122,39 +117,41 @@
   <img src={bg} alt={gameEnName} class="w-full h-full" draggable="false" />
   <VersionTag {version} {remoteVersion} {hasPreDownload} />
   <Directory
-    {key}
     {gameEnName}
     {gameCnName}
-    {gameInfo}
-    {validation}
+    {hoyoClass}
+    {launcherValidation}
+    {exeValidation}
     {processStatus}
-    on:bind-path={handleBindPath}
+    on:specify-game-path={handleSpecifyGamePath}
   />
   {#if processStatus}
     <h2 class="absolute-middle w-full text-center text-amber-500">
       游戏已启动
     </h2>
   {/if}
-  {#if validation && !processStatus}
+  {#if !processStatus}
     <div
       class="absolute bottom-0 flex flex-col items-center space-y-4 mb-4 w-full"
     >
-      <OfficialButton
-        cls={hasPreDownload ||
-        (version.length > 0 &&
-          remoteVersion.length > 0 &&
-          version !== remoteVersion)
-          ? "animate-pulse"
-          : ""}
-        dir={gameInfo.root}
-        file={gameInfo.launcher}
-      />
-      <StarterButton
-        disabled={version !== remoteVersion}
-        dir={gameInfo.game}
-        file={gameInfo.exe}
-        on:watch-process={handleWatchProcess}
-      />
+      {#if launcherValidation}
+        <OfficialButton
+          cls={hasPreDownload ||
+          (version.length > 0 &&
+            remoteVersion.length > 0 &&
+            version !== remoteVersion)
+            ? "animate-pulse"
+            : ""}
+          {hoyoClass}
+        />
+      {/if}
+      {#if exeValidation}
+        <StarterButton
+          disabled={version !== remoteVersion}
+          {hoyoClass}
+          on:watch-process={handleWatchProcess}
+        />
+      {/if}
     </div>
   {/if}
 </section>

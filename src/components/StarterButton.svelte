@@ -1,19 +1,17 @@
 <script lang="ts" name="StarterButton">
   import { createEventDispatcher } from "svelte";
-  import { Invoker } from "@/enum/invoker";
   import { KButton } from "@ikun-ui/button";
   import { KMessage } from "@ikun-ui/message";
-  import { invoke } from "@tauri-apps/api";
+	import { HoyoClass } from '@/lib';
 
-  export let dir: string;
-  export let file: string;
   export let disabled: boolean;
+  
+  export let hoyoClass: HoyoClass;
 
   const dispatch = createEventDispatcher();
 
   async function openExe() {
-    const param: CheckPath = { dir, file };
-    const flag = await invoke<boolean>(Invoker.open_exe, param);
+    const flag = await hoyoClass.openExeFile();
     if (flag) {
       KMessage({
         type: "success",
