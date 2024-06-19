@@ -59,6 +59,5 @@ interface WindowVisible extends InvokeParam {
 }
 
 interface LocalVersion extends InvokeParam {
-  key: keyof typeof GameKey;
-  installPath: string;
+  path: string;
 }

@@ -9,6 +9,7 @@
   import Directory from "@/components/Directory.svelte";
   import StarterButton from "@/components/StarterButton.svelte";
   import OfficialButton from "./../components/OfficialButton.svelte";
+  import { HoyoClass, HoyoInterface } from "@/lib/core";
 
   export let key: keyof typeof GameKey;
   export let bg: string;
@@ -16,12 +17,14 @@
   export let gameCnName: string;
   export let processName: string;
 
-  let gameInfo: Hoyo = {
+  let gameInfo: HoyoInterface = {
     root: "",
     launcher: "",
     game: "",
     exe: "",
   };
+  let hoyoClass: HoyoClass;
+
   let timer: number = 0;
   /** 路径检测 */
   let validation = false;
@@ -104,6 +107,7 @@
   let unListen: UnlistenFn | null = null;
   onMount(async () => {
     gameInfo = getStorage(key);
+    hoyoClass = new HoyoClass(gameInfo, processName);
     checkPath();
     unListen = await listen(TauriEvent.WINDOW_FOCUS, checkLocalVersion);
   });
@@ -132,7 +136,9 @@
     </h2>
   {/if}
   {#if validation && !processStatus}
-    <div class="absolute bottom-0 flex flex-col items-center space-y-4 mb-4 w-full">
+    <div
+      class="absolute bottom-0 flex flex-col items-center space-y-4 mb-4 w-full"
+    >
       <OfficialButton
         cls={hasPreDownload ||
         (version.length > 0 &&
