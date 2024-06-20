@@ -1,7 +1,7 @@
 <script lang="ts" name="AppointButton">
   import { createEventDispatcher } from "svelte";
   import { KButton } from "@ikun-ui/button";
-  import { FileProp, HoyoClass } from "@/lib";
+  import { HoyoClass } from "@/lib";
 
   export let needCheckConfig: boolean;
 
@@ -12,7 +12,7 @@
   }>();
 
   async function specifyExeFile() {
-    const exeFile = await hoyoClass.pickExeFile(needCheckConfig);
+    const exeFile = needCheckConfig ? await hoyoClass.pickGameFile() : await hoyoClass.pickScriptFile();
     if (exeFile.path.length > 0 && exeFile.file.length > 0) {
       dispatch("specify-exe", exeFile);
     }
@@ -20,5 +20,5 @@
 </script>
 
 <KButton type="error" size="md" on:click={specifyExeFile}>
-  指定启动文件({ needCheckConfig ? '需要游戏本体exe' : '自由选择exe' })
+  {needCheckConfig ? "2.指定游戏本体exe" : "3.获取游戏本体后自由选择exe脚本"}
 </KButton>

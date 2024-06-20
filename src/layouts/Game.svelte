@@ -2,7 +2,7 @@
   import { type UnlistenFn, listen, TauriEvent } from "@tauri-apps/api/event";
   import { onMount, onDestroy } from "svelte";
   import { checkResource } from "@/api";
-  import { HoyoClass, HoyoInterface, getStorage, setStorage } from "@/lib";
+  import { HoyoClass, getStorage, setStorage, SYNC_EVENT_NAME } from "@/lib";
   import VersionTag from "@/components/VersionTag.svelte";
   import Directory from "@/components/Directory.svelte";
   import StarterButton from "@/components/StarterButton.svelte";
@@ -13,13 +13,18 @@
   export let gameEnName: string;
   export let gameCnName: string;
   export let processName: string;
+  export let syncLauncher: boolean;
+
+  const syncEvent = "sync-launcher";
 
   let hoyoClass: HoyoClass = new HoyoClass(
     {
-      root: "",
-      launcher: "",
-      game: "",
-      exe: "",
+      launcherPath: "",
+      launcherFile: "",
+      gamePath: "",
+      gameFile: "",
+      scriptPath: "",
+      scriptFile: "",
     },
     processName
   );
@@ -28,7 +33,9 @@
 
   let launcherValidation = false;
 
-  let exeValidation = false;
+  let gameValidation = false;
+
+  let scriptValidation = false;
 
   let processStatus: boolean = false;
 
@@ -41,10 +48,10 @@
   /** 游戏进程监听 */
   async function checkGameProcess() {
     const flag = await hoyoClass.checkGameStatus();
-    if (flag) {
+    if (flag && !processStatus) {
       // 进程开启
       HoyoClass.changeWindowStatus(false);
-    } else {
+    } else if (!flag && processStatus) {
       closeWatch();
       // 进程关闭
       HoyoClass.changeWindowStatus(true);
@@ -75,17 +82,40 @@
     hasPreDownload = result.hasPreDownload;
   }
 
+  function syncLauncherPath(event: Event) {
+    const launcherProp = (event as unknown as CustomEvent<FileProp>).detail;
+    const param: HoyoInterface = {
+      launcherPath: launcherProp.path,
+      launcherFile: launcherProp.file,
+      gamePath: hoyoClass.gameProp.path,
+      gameFile: hoyoClass.gameProp.file,
+      scriptPath: hoyoClass.scriptProp.path,
+      scriptFile: hoyoClass.scriptProp.file,
+    };
+    hoyoClass = new HoyoClass(param, processName);
+  }
+
   /** 检查路径正确性 */
   async function checkPath() {
-    [launcherValidation, exeValidation] = await Promise.all([
+    [launcherValidation, gameValidation, scriptValidation] = await Promise.all([
       hoyoClass.checkLauncherPathValid(),
-      hoyoClass.checkExePathValid(),
+      hoyoClass.checkGamePathValid(),
+      hoyoClass.checkScriptPathValid(),
     ]);
-    if (launcherValidation || exeValidation) {
+    if (launcherValidation && gameValidation && scriptValidation) {
       const gameInfo = hoyoClass.getHoyoInterface();
       setStorage(key, gameInfo);
       checkLocalVersion();
       checkRemoteVersion();
+    }
+    if (syncLauncher) {
+      const customEvent = new CustomEvent(syncEvent, {
+        detail: {
+          path: hoyoClass.launcherProp.path,
+          file: hoyoClass.launcherProp.file,
+        },
+      });
+      window.dispatchEvent(customEvent);
     }
   }
 
@@ -101,13 +131,17 @@
   }
 
   let unListen: UnlistenFn | null = null;
+
   onMount(async () => {
+    window.addEventListener(SYNC_EVENT_NAME, syncLauncherPath);
+    const persistData = getStorage(key);
     hoyoClass = new HoyoClass(getStorage(key), processName);
     checkPath();
     unListen = await listen(TauriEvent.WINDOW_FOCUS, checkLocalVersion);
   });
 
   onDestroy(() => {
+    window.removeEventListener(SYNC_EVENT_NAME, syncLauncherPath);
     closeWatch();
     unListen && unListen();
   });
@@ -121,8 +155,8 @@
     {gameCnName}
     {hoyoClass}
     {launcherValidation}
-    {exeValidation}
     {processStatus}
+    exeFileValidation={gameValidation && scriptValidation}
     on:specify-game-path={handleSpecifyGamePath}
   />
   {#if processStatus}
@@ -145,12 +179,8 @@
           {hoyoClass}
         />
       {/if}
-      {#if exeValidation}
-        <StarterButton
-          disabled={version !== remoteVersion}
-          {hoyoClass}
-          on:watch-process={handleWatchProcess}
-        />
+      {#if gameValidation}
+        <StarterButton {hoyoClass} on:watch-process={handleWatchProcess} />
       {/if}
     </div>
   {/if}

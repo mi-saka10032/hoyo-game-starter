@@ -3,7 +3,7 @@
   import { KButton } from "@ikun-ui/button";
   import { KTooltip } from "@ikun-ui/tooltip";
   import AppointButton from "@/components/AppointButton.svelte";
-  import { FileProp, HoyoClass, HoyoInterface } from "@/lib";
+  import { HoyoClass } from "@/lib";
 
   export let gameEnName: string;
 
@@ -13,7 +13,7 @@
 
   export let launcherValidation: boolean;
 
-  export let exeValidation: boolean;
+  export let exeFileValidation: boolean;
 
   export let processStatus: boolean;
 
@@ -25,22 +25,29 @@
     const result = await hoyoClass.pickLauncherFile();
     if (result.path.length > 0 && result.file.length > 0) {
       dispatch("specify-game-path", {
-        root: result.path,
-        launcher: result.file,
-        game: hoyoClass.exeProp.path,
-        exe: hoyoClass.exeProp.file,
+        launcherPath: result.path,
+        launcherFile: result.file,
+        gamePath: hoyoClass.gameProp.path,
+        gameFile: hoyoClass.gameProp.file,
+        scriptPath: hoyoClass.scriptProp.path,
+        scriptFile: hoyoClass.scriptProp.file,
       });
     }
   }
 
-  function handleSpecifyExeFile(event: CustomEvent<FileProp>) {
-    const exeFile = event.detail;
-    dispatch("specify-game-path", {
-      root: hoyoClass.launcherProp.path,
-      launcher: hoyoClass.launcherProp.file,
-      game: exeFile.path,
-      exe: exeFile.file,
-    });
+  function handleSpecifyExeFile(needCheckConfig: boolean) {
+    return (event: CustomEvent<FileProp>) => {
+      const exeFile = event.detail;
+      const specifyExeFileParam = {
+        launcherPath: hoyoClass.launcherProp.path,
+        launcherFile: hoyoClass.launcherProp.file,
+        gamePath: needCheckConfig ? exeFile.path : hoyoClass.gameProp.path,
+        gameFile: needCheckConfig ? exeFile.file : hoyoClass.gameProp.file,
+        scriptPath: exeFile.path,
+        scriptFile: exeFile.file,
+      };
+      dispatch("specify-game-path", specifyExeFileParam);
+    };
   }
 </script>
 
@@ -55,13 +62,13 @@
         文件夹根目录：{hoyoClass.launcherProp.path}
       </p>
     </KTooltip>
-    {#if exeValidation}
+    {#if exeFileValidation}
       <KTooltip
         placement="bottom"
-        content={`${hoyoClass.exeProp.path}\\${hoyoClass.exeProp.file}`}
+        content={`${hoyoClass.scriptProp.path}\\${hoyoClass.scriptProp.file}`}
       >
         <p slot="triggerEl" class="max-w-md truncate">
-          exe文件目录：{`${hoyoClass.exeProp.path}\\${hoyoClass.exeProp.file}`}
+          exe运行文件目录：{`${hoyoClass.scriptProp.path}\\${hoyoClass.scriptProp.file}`}
         </p>
       </KTooltip>
     {:else}
@@ -70,24 +77,20 @@
       </div>
     {/if}
     {#if !processStatus}
-      <div
-        class={`flex ${
-          launcherValidation ? "justify-between" : "justify-center"
-        } items-center px-16 w-full`}
-      >
+      <div class="flex flex-col items-center gap-y-2">
         <KButton type="error" size="md" on:click={handleSpecifyLauncherFile}>
-          指定启动器目录
+          1.指定启动器目录
         </KButton>
         {#if launcherValidation}
           <AppointButton
             needCheckConfig={true}
             {hoyoClass}
-            on:specify-exe={handleSpecifyExeFile}
+            on:specify-exe={handleSpecifyExeFile(true)}
           />
           <AppointButton
             needCheckConfig={false}
             {hoyoClass}
-            on:specify-exe={handleSpecifyExeFile}
+            on:specify-exe={handleSpecifyExeFile(false)}
           />
         {/if}
       </div>

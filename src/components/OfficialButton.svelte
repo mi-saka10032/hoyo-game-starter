@@ -8,7 +8,7 @@
   export let hoyoClass: HoyoClass;
 
   async function openOfficialStarter() {
-    const flag = await hoyoClass.openExeFile();
+    const flag = await hoyoClass.openLauncherFile();
     if (flag) {
       KMessage({
         type: "success",

@@ -14,6 +14,9 @@ dependencies:
   '@ikun-ui/message':
     specifier: 0.1.5
     version: 0.1.5(ansi-colors@4.1.3)(moment@2.30.1)
+  '@ikun-ui/switch':
+    specifier: ^0.2.6
+    version: 0.2.6(ansi-colors@4.1.3)(moment@2.30.1)
   '@ikun-ui/tag':
     specifier: 0.1.5
     version: 0.1.5(ansi-colors@4.1.3)(moment@2.30.1)
@@ -693,12 +696,37 @@ packages:
       - moment
     dev: false
 
+  /@ikun-ui/form@0.2.6(ansi-colors@4.1.3)(moment@2.30.1):
+    resolution: {integrity: sha512-u0R7nQTTxqwM2aH18JVQw3Mob36d1ZKg8Fkx/uou2E8brRxFUXfBQWvnmPQ8ozQLKfWPyZOAco4g/P+Q4bLtvQ==}
+    dependencies:
+      '@ikun-ui/icon': 0.2.6(ansi-colors@4.1.3)(moment@2.30.1)
+      '@ikun-ui/utils': 0.2.6
+      baiwusanyu-utils: 1.0.18(ansi-colors@4.1.3)(moment@2.30.1)
+      clsx: 2.1.0
+      svelte: 4.2.18
+    transitivePeerDependencies:
+      - ansi-colors
+      - moment
+    dev: false
+
   /@ikun-ui/icon@0.1.5(ansi-colors@4.1.3)(moment@2.30.1):
     resolution: {integrity: sha512-jBQMjaTEKBjPI6hHNMKgbK5NIYdA0KvBzsFcEfXW6dHcWtx23dZStNJyQYDuyO7RnQiRoZUvipApDsbV8Gx9jw==}
     dependencies:
       '@ikun-ui/utils': 0.1.5
       baiwusanyu-utils: 1.0.18(ansi-colors@4.1.3)(moment@2.30.1)
       clsx: 2.1.0
+    transitivePeerDependencies:
+      - ansi-colors
+      - moment
+    dev: false
+
+  /@ikun-ui/icon@0.2.6(ansi-colors@4.1.3)(moment@2.30.1):
+    resolution: {integrity: sha512-BHkOA6xw0qh2zUhM7MvOdnXjR5HIICZxsMqJl91SwWHu3aasHK3X97i0ORIC6In3uCK5n4QMSKz6E4NSaa/O9A==}
+    dependencies:
+      '@ikun-ui/utils': 0.2.6
+      baiwusanyu-utils: 1.0.18(ansi-colors@4.1.3)(moment@2.30.1)
+      clsx: 2.1.0
+      svelte: 4.2.18
     transitivePeerDependencies:
       - ansi-colors
       - moment
@@ -743,6 +771,19 @@ packages:
     resolution: {integrity: sha512-GieZ5FMj2awFQgdP3i/uYoQvoq1IMTunbph3QKEiYWxNsw72s52j3CTQRwNZsr/TmEoWhPcH2MZG9nsbCJatyg==}
     dev: true
 
+  /@ikun-ui/switch@0.2.6(ansi-colors@4.1.3)(moment@2.30.1):
+    resolution: {integrity: sha512-aXZz36efwLVcXEfe63flrJ6J/uciQ/ROcOnyX1IcDNTBWPuZHzOqClmOIfypeCHZmckzpEcYbsYGjtc/diqlow==}
+    dependencies:
+      '@ikun-ui/form': 0.2.6(ansi-colors@4.1.3)(moment@2.30.1)
+      '@ikun-ui/icon': 0.2.6(ansi-colors@4.1.3)(moment@2.30.1)
+      '@ikun-ui/utils': 0.2.6
+      baiwusanyu-utils: 1.0.18(ansi-colors@4.1.3)(moment@2.30.1)
+      svelte: 4.2.18
+    transitivePeerDependencies:
+      - ansi-colors
+      - moment
+    dev: false
+
   /@ikun-ui/tag@0.1.5(ansi-colors@4.1.3)(moment@2.30.1):
     resolution: {integrity: sha512-JtSbNzCmX1xT8fedLVXr9VtGyLaXw+TkllOHNCi0g1UQB4gAg4Qtd7Rwb9CHQOnZHF/Pva3SesOvatOcH3FzaQ==}
     dependencies:
@@ -769,6 +810,12 @@ packages:
 
   /@ikun-ui/utils@0.1.5:
     resolution: {integrity: sha512-PT2i8Z/iyZFUhtVZMsU+zP7911c3cLv+w4mkSLTiqlsiCwL8sbqjJgBVT1ot0Vru9u88oMd1nDkj+dArV+Gunw==}
+    dependencies:
+      esm-env: 1.0.0
+    dev: false
+
+  /@ikun-ui/utils@0.2.6:
+    resolution: {integrity: sha512-ANz/Gi6N7kRSMSIf7INxhcNaCyASw/O8s/3YGJ5FmZzPyaVEm9/WNEvCk/uOy+eJQBc+tCxUBzjduXeBCtSQqw==}
     dependencies:
       esm-env: 1.0.0
     dev: false
@@ -1358,6 +1405,12 @@ packages:
     resolution: {integrity: sha512-jsyHu61e6N4Vbz/v18DHwWYKK0bSWLqn47eeDSKPB7m8tqMHF9YJ+mhIk2lVteyZrY8tnSj/jHOv4YiTCuCJgg==}
     dependencies:
       dequal: 2.0.3
+
+  /axobject-query@4.0.0:
+    resolution: {integrity: sha512-+60uv1hiVFhHZeO+Lz0RYzsVHy5Wr1ayX0mwda9KPDVLNJgZ1T9Ny7VmFbLDzxsH0D87I86vgj3gFrjTJUYznw==}
+    dependencies:
+      dequal: 2.0.3
+    dev: false
 
   /baiwusanyu-utils@1.0.18(ansi-colors@4.1.3)(moment@2.30.1):
     resolution: {integrity: sha512-wOBdqD2brZwNWkX9IKEWTEXQWh+a5UCpQxQXlu+abSL6MnalMBMwJf1tqGF49hfFT+RzVnWXWirhNNycGGZ0fQ==}
@@ -2271,6 +2324,26 @@ packages:
       svelte: 4.2.8
       typescript: 5.3.3
     dev: true
+
+  /svelte@4.2.18:
+    resolution: {integrity: sha512-d0FdzYIiAePqRJEb90WlJDkjUEx42xhivxN8muUBmfZnP+tzUgz12DJ2hRJi8sIHCME7jeK1PTMgKPSfTd8JrA==}
+    engines: {node: '>=16'}
+    dependencies:
+      '@ampproject/remapping': 2.2.1
+      '@jridgewell/sourcemap-codec': 1.4.15
+      '@jridgewell/trace-mapping': 0.3.21
+      '@types/estree': 1.0.5
+      acorn: 8.11.3
+      aria-query: 5.3.0
+      axobject-query: 4.0.0
+      code-red: 1.0.4
+      css-tree: 2.3.1
+      estree-walker: 3.0.3
+      is-reference: 3.0.2
+      locate-character: 3.0.0
+      magic-string: 0.30.5
+      periscopic: 3.1.0
+    dev: false
 
   /svelte@4.2.8:
     resolution: {integrity: sha512-hU6dh1MPl8gh6klQZwK/n73GiAHiR95IkFsesLPbMeEZi36ydaXL/ZAb4g9sayT0MXzpxyZjR28yderJHxcmYA==}

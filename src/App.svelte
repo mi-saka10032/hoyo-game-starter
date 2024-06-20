@@ -1,9 +1,11 @@
 <script lang="ts">
-	import Header from '@/layouts/Header.svelte';
+  import Header from "@/layouts/Header.svelte";
   import Game from "@/layouts/Game.svelte";
   import HonKai3BG from "./assets/bh3.jpg";
   import YuanShenBG from "./assets/ys.jpg";
   import StarRailBG from "./assets/star.jfif";
+  import { getSyncStatus, setSyncStatus } from "./lib";
+  import { onMount } from "svelte";
 
   const games: GameItem[] = [
     {
@@ -29,14 +31,24 @@
     },
   ];
 
-  let timer: number = 0;
+  let syncLauncher: boolean = false;
+
+  function changeSyncStatus(event: CustomEvent<boolean>) {
+    const status = event.detail;
+    syncLauncher = status;
+    setSyncStatus(status);
+  }
+
+  onMount(() => {
+    syncLauncher = getSyncStatus();
+  });
 </script>
 
 <root class="flex flex-col h-full">
-  <Header />
+  <Header value={syncLauncher} on:change={changeSyncStatus} />
   <main class="flex-1 grid grid-cols-3 text-white">
     {#each games as item, i (item.key)}
-      <Game {...item} />
+      <Game {...item} {syncLauncher} />
     {/each}
   </main>
 </root>

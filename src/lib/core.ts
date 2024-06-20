@@ -1,38 +1,41 @@
 import { invoke } from "@tauri-apps/api/tauri";
-import { FileProp, Invoker, InvokerRequest } from "./invoker";
+import { Invoker, InvokerRequest } from "./invoker";
 
-export interface HoyoInterface {
-  root: string;
-  launcher: string;
-  game: string;
-  exe: string;
-}
+export const SYNC_EVENT_NAME = "sync-launcher";
 
 export class HoyoClass {
   public launcherProp: FileProp;
 
-  public exeProp: FileProp;
+  public gameProp: FileProp;
+
+  public scriptProp: FileProp;
 
   private processName: string;
 
   constructor(hoyo: HoyoInterface, processName: string) {
     this.launcherProp = {
-      path: hoyo.root,
-      file: hoyo.launcher,
+      path: hoyo.launcherPath,
+      file: hoyo.launcherFile,
     };
-    this.exeProp = {
-      path: hoyo.game,
-      file: hoyo.exe,
+    this.gameProp = {
+      path: hoyo.gamePath,
+      file: hoyo.gameFile,
+    };
+    this.scriptProp = {
+      path: hoyo.scriptPath,
+      file: hoyo.scriptFile,
     };
     this.processName = processName;
   }
 
   public getHoyoInterface(): HoyoInterface {
     return {
-      root: this.launcherProp.path,
-      launcher: this.launcherProp.file,
-      game: this.exeProp.path,
-      exe: this.exeProp.file,
+      launcherPath: this.launcherProp.path,
+      launcherFile: this.launcherProp.file,
+      gamePath: this.gameProp.path,
+      gameFile: this.gameProp.file,
+      scriptPath: this.scriptProp.path,
+      scriptFile: this.scriptProp.file,
     };
   }
 
@@ -53,13 +56,23 @@ export class HoyoClass {
     });
   }
 
-  public checkExePathValid() {
+  public checkGamePathValid() {
     const callback: InvokerRequest["check_path_valid"] = (param) =>
       invoke(Invoker.check_path_valid, param);
 
     return callback({
-      path: this.exeProp.path,
-      file: this.exeProp.file,
+      path: this.gameProp.path,
+      file: this.gameProp.file,
+    });
+  }
+
+  public checkScriptPathValid() {
+    const callback: InvokerRequest["check_path_valid"] = (param) =>
+      invoke(Invoker.check_path_valid, param);
+
+    return callback({
+      path: this.scriptProp.path,
+      file: this.scriptProp.file,
     });
   }
 
@@ -72,13 +85,13 @@ export class HoyoClass {
     });
   }
 
-  public openExeFile() {
+  public openScriptFile() {
     const callback: InvokerRequest["open_exe_file"] = (param) =>
       invoke(Invoker.open_exe_file, param);
 
     return callback({
-      path: this.exeProp.path,
-      file: this.exeProp.file,
+      path: this.scriptProp.path,
+      file: this.scriptProp.file,
     });
   }
 
@@ -92,14 +105,25 @@ export class HoyoClass {
     });
   }
 
-  public pickExeFile(need_check_config: boolean) {
+  public pickGameFile() {
     const callback: InvokerRequest["pick_exe_file"] = (param) =>
       invoke(Invoker.pick_exe_file, param);
 
     return callback({
-      path: this.exeProp.path,
-      file: this.exeProp.file,
-      need_check_config,
+      path: this.gameProp.path,
+      file: this.gameProp.file,
+      needCheckConfig: true,
+    });
+  }
+
+  public pickScriptFile() {
+    const callback: InvokerRequest["pick_exe_file"] = (param) =>
+      invoke(Invoker.pick_exe_file, param);
+
+    return callback({
+      path: this.launcherProp.path,
+      file: this.launcherProp.file,
+      needCheckConfig: false,
     });
   }
 
@@ -118,8 +142,8 @@ export class HoyoClass {
       invoke(Invoker.read_local_version, param);
 
     return callback({
-      path: this.exeProp.path,
-      file: this.exeProp.file,
+      path: this.gameProp.path,
+      file: this.gameProp.file,
     });
   }
 }
