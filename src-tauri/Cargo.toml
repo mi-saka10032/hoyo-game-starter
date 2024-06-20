@@ -1,6 +1,6 @@
 [package]
 name = "hoyo_game_starter"
-version = "1.0.2"
+version = "1.0.3"
 description = "米哈游游戏极速整合启动器"
 authors = ["you"]
 license = "mit"
