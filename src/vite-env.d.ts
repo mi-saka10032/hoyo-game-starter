@@ -15,14 +15,13 @@ interface GameItem {
   processName: string;
 }
 
-interface AppointFile {
-  game: string;
-  exe: string;
-}
-
-interface Hoyo extends AppointFile {
-  root: string;
-  launcher: string;
+interface HoyoInterface {
+  launcherPath: string;
+  launcherFile: string;
+  gamePath: string;
+  gameFile: string;
+  scriptPath: string;
+  scriptFile: string;
 }
 
 interface StaticResource {
@@ -40,25 +39,7 @@ interface InvokeParam {
   [key: string]: any;
 }
 
-interface PickFolder extends InvokeParam {
-  key: keyof typeof GameKey;
-  title: string;
-}
-
-interface CheckPath extends InvokeParam {
-  dir: string;
+interface FileProp extends InvokeParam {
+  path: string;
   file: string;
-}
-
-interface GameProcess extends InvokeParam {
-  process: string;
-}
-
-interface WindowVisible extends InvokeParam {
-  status: boolean;
-}
-
-interface LocalVersion extends InvokeParam {
-  key: keyof typeof GameKey;
-  installPath: string;
 }

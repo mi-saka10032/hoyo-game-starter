@@ -1,40 +1,53 @@
 <script lang="ts" name="Directory">
   import { createEventDispatcher } from "svelte";
-  import { Invoker } from "@/enum/invoker";
   import { KButton } from "@ikun-ui/button";
   import { KTooltip } from "@ikun-ui/tooltip";
-  import { invoke } from "@tauri-apps/api";
   import AppointButton from "@/components/AppointButton.svelte";
+  import { HoyoClass } from "@/lib";
 
-  export let key: keyof typeof GameKey;
   export let gameEnName: string;
+
   export let gameCnName: string;
-  export let gameInfo: Hoyo;
-  export let validation: boolean;
+
+  export let hoyoClass: HoyoClass;
+
+  export let launcherValidation: boolean;
+
+  export let exeFileValidation: boolean;
+
   export let processStatus: boolean;
 
-  let title = `请提供 ${gameEnName} 的文件夹根目录！`;
   const dispatch = createEventDispatcher<{
-    "bind-path": Hoyo;
+    "specify-game-path": HoyoInterface;
   }>();
 
-  async function bindPath() {
-    const param: PickFolder = { key, title };
-    const result = await invoke<Hoyo>(Invoker.pick_folder, param);
-    if (result.root.length > 0 && result.game.length > 0) {
-      dispatch("bind-path", result);
+  async function handleSpecifyLauncherFile() {
+    const result = await hoyoClass.pickLauncherFile();
+    if (result.path.length > 0 && result.file.length > 0) {
+      dispatch("specify-game-path", {
+        launcherPath: result.path,
+        launcherFile: result.file,
+        gamePath: hoyoClass.gameProp.path,
+        gameFile: hoyoClass.gameProp.file,
+        scriptPath: hoyoClass.scriptProp.path,
+        scriptFile: hoyoClass.scriptProp.file,
+      });
     }
   }
 
-  function handleAppointFile(event: CustomEvent<AppointFile>) {
-    const appoint = event.detail;
-    const result: Hoyo = {
-      root: gameInfo.root,
-      launcher: gameInfo.launcher,
-      game: appoint.game,
-      exe: appoint.exe,
+  function handleSpecifyExeFile(needCheckConfig: boolean) {
+    return (event: CustomEvent<FileProp>) => {
+      const exeFile = event.detail;
+      const specifyExeFileParam = {
+        launcherPath: hoyoClass.launcherProp.path,
+        launcherFile: hoyoClass.launcherProp.file,
+        gamePath: needCheckConfig ? exeFile.path : hoyoClass.gameProp.path,
+        gameFile: needCheckConfig ? exeFile.file : hoyoClass.gameProp.file,
+        scriptPath: exeFile.path,
+        scriptFile: exeFile.file,
+      };
+      dispatch("specify-game-path", specifyExeFileParam);
     };
-    dispatch("bind-path", result);
   }
 </script>
 
@@ -42,20 +55,20 @@
   class="x-middle top-3 flex flex-col items-center space-y-2 w-full text-center"
 >
   <h2>{gameCnName}</h2>
-  {#if gameInfo.root.length > 0}
+  {#if hoyoClass.launcherProp.path.length > 0}
     <p>已绑定{gameCnName}：</p>
-    <KTooltip placement="bottom" content={gameInfo.root}>
+    <KTooltip placement="bottom" content={hoyoClass.launcherProp.path}>
       <p slot="triggerEl" class="max-w-md truncate">
-        文件夹根目录：{gameInfo.root}
+        文件夹根目录：{hoyoClass.launcherProp.path}
       </p>
     </KTooltip>
-    {#if validation}
+    {#if exeFileValidation}
       <KTooltip
         placement="bottom"
-        content={`${gameInfo.game}\\${gameInfo.exe}`}
+        content={`${hoyoClass.scriptProp.path}\\${hoyoClass.scriptProp.file}`}
       >
         <p slot="triggerEl" class="max-w-md truncate">
-          exe文件目录：{`${gameInfo.game}\\${gameInfo.exe}`}
+          exe运行文件目录：{`${hoyoClass.scriptProp.path}\\${hoyoClass.scriptProp.file}`}
         </p>
       </KTooltip>
     {:else}
@@ -64,16 +77,21 @@
       </div>
     {/if}
     {#if !processStatus}
-      <div
-        class={`flex ${
-          validation ? "justify-between" : "justify-center"
-        } items-center px-16 w-full`}
-      >
-        <KButton type="error" size="md" on:click={bindPath}>
-          指定安装目录
+      <div class="flex flex-col items-center gap-y-2">
+        <KButton type="error" size="md" on:click={handleSpecifyLauncherFile}>
+          1.指定启动器目录
         </KButton>
-        {#if validation}
-          <AppointButton on:appoint-file={handleAppointFile} />
+        {#if launcherValidation}
+          <AppointButton
+            needCheckConfig={true}
+            {hoyoClass}
+            on:specify-exe={handleSpecifyExeFile(true)}
+          />
+          <AppointButton
+            needCheckConfig={false}
+            {hoyoClass}
+            on:specify-exe={handleSpecifyExeFile(false)}
+          />
         {/if}
       </div>
     {/if}
@@ -81,9 +99,9 @@
     <p>请绑定 {gameEnName} 的文件夹根目录</p>
   {/if}
 </div>
-{#if gameInfo.root.length === 0}
+{#if hoyoClass.launcherProp.path.length === 0}
   <div class="absolute-middle flex justify-center w-full">
-    <KButton type="warning" size="lg" on:click={bindPath}>
+    <KButton type="warning" size="lg" on:click={handleSpecifyLauncherFile}>
       首次使用请绑定游戏安装目录
     </KButton>
   </div>
