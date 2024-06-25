@@ -2,8 +2,6 @@ use tauri::{
     AppHandle, CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, Window,
 };
 
-pub const WINDOW_CMD_HIDE_CONSTANT: u32 = 0x08000000;
-
 #[derive(Clone, serde::Serialize)]
 pub struct SingleInstancePayload {
     pub args: Vec<String>,

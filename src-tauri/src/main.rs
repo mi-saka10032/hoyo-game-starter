@@ -5,9 +5,9 @@ mod hoyo;
 mod tray;
 
 use hoyo::HoyoProp;
-use std::{os::windows::process::CommandExt, process::Command};
+use sysinfo::System;
 use tauri::{Manager, Window};
-use tray::{show_window, SingleInstancePayload, WINDOW_CMD_HIDE_CONSTANT};
+use tray::{show_window, SingleInstancePayload};
 
 /** 改变窗口可见状态 */
 #[tauri::command]
@@ -22,17 +22,9 @@ fn change_window_status(window: Window, status: bool) {
 /** 检测游戏进程状态 */
 #[tauri::command]
 fn check_game_status(process: &str) -> bool {
-    let output = Command::new("cmd")
-        .creation_flags(WINDOW_CMD_HIDE_CONSTANT) // 隐藏cmd窗口
-        .arg("/c")
-        .arg(format!("tasklist | findstr {}", process))
-        .output()
-        .expect("-1");
-    let output_str = String::from_utf8_lossy(&output.stdout);
-    match output_str.find(process) {
-        Some(_) => return true,
-        None => return false,
-    };
+    let mut system = System::new();
+    system.refresh_processes();
+    system.processes().iter().any(|(_, iter_process)| iter_process.name() == process.to_string())
 }
 
 /** 检测路径有效性 */

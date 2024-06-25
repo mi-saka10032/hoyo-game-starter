@@ -4,11 +4,11 @@ use std::fs;
 use std::process::Command;
 use std::{os::windows::process::CommandExt, path::Path};
 
-use crate::tray::WINDOW_CMD_HIDE_CONSTANT;
-
 const LAUNCHER_FILE_NAME: &str = "launcher.exe";
 
 const CONFIG_FILE_NAME: &str = "config.ini";
+
+const WINDOW_CMD_HIDE_CONSTANT: u32 = 0x08000000;
 
 #[derive(Serialize)]
 pub struct HoyoProp {
@@ -34,20 +34,21 @@ impl HoyoProp {
             return false;
         }
         let file_path = self.format_real_path();
-        let file = Path::new(&file_path);
-        return file.exists();
+        Path::new(&file_path).exists()
     }
 
     pub fn open_exe_file(&self) -> bool {
         let is_exist = self.check_path_valid();
         if is_exist {
-            let _ = Command::new("cmd")
+            Command::new("cmd")
                 .creation_flags(WINDOW_CMD_HIDE_CONSTANT) // 隐藏cmd窗口
                 .arg("/c")
                 .arg(format!("cd {} && start {}", self.path, self.file))
-                .spawn();
+                .spawn()
+                .is_ok()
+        } else {
+            false
         }
-        return is_exist;
     }
 
     pub fn read_local_version(&mut self) -> String {
