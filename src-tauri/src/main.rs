@@ -2,11 +2,17 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod hoyo;
+mod monitor;
 mod tray;
 
+use std::{
+    collections::HashSet,
+    sync::{Arc, Mutex},
+};
+
 use hoyo::HoyoProp;
-use sysinfo::System;
-use tauri::{Manager, Window};
+use monitor::monitor_process;
+use tauri::{Manager, State, Window};
 use tray::{show_window, SingleInstancePayload};
 
 /** 改变窗口可见状态 */
@@ -21,10 +27,32 @@ fn change_window_status(window: Window, status: bool) {
 
 /** 检测游戏进程状态 */
 #[tauri::command]
-fn check_game_status(process: &str) -> bool {
-    let mut system = System::new();
-    system.refresh_processes();
-    system.processes().iter().any(|(_, iter_process)| iter_process.name() == process.to_string())
+async fn check_game_status(
+    window: Window,
+    process: &str,
+    state: State<'_, Arc<Mutex<HashSet<String>>>>,
+) -> Result<(), String> {
+    let process_name = process.to_string();
+    let mut prefix_state = state.lock().map_err(|e| e.to_string())?;
+
+    if prefix_state.insert(String::clone(&process_name)) {
+        drop(prefix_state);
+        let state_clone = Arc::clone(&state.inner());
+
+        tokio::spawn(async move {
+            monitor_process(window, &process_name).await;
+
+            match state_clone.lock() {
+                Ok(mut suffix_state) => {
+                    suffix_state.remove(&process_name);
+                    drop(suffix_state);
+                }
+                Err(_) => {}
+            }
+        });
+    }
+
+    Ok(())
 }
 
 /** 检测路径有效性 */
@@ -57,17 +85,14 @@ fn read_local_version(path: &str) -> String {
     HoyoProp::new(path, "").read_local_version()
 }
 
-
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
-            app.emit_all(
-                "single-instance",
-                SingleInstancePayload { args: argv, cwd },
-            )
-            .unwrap();
+            app.emit_all("single-instance", SingleInstancePayload { args: argv, cwd })
+                .unwrap();
             tray::show_window(app.get_window("main").unwrap());
         }))
+        .manage(Arc::new(Mutex::new(HashSet::<String>::new())))
         .invoke_handler(tauri::generate_handler![
             change_window_status,
             check_game_status,

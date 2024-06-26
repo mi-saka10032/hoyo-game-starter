@@ -14,7 +14,7 @@ export type InvokerRequest = {
   }: { status: boolean } & InvokeParam) => Promise<void>;
   [Invoker.check_game_status]: ({
     process,
-  }: { process: string } & InvokeParam) => Promise<boolean>;
+  }: { process: string } & InvokeParam) => Promise<void>;
   [Invoker.check_path_valid]: (fileProp: FileProp) => Promise<boolean>;
   [Invoker.open_exe_file]: (fileProp: FileProp) => Promise<boolean>;
   [Invoker.pick_exe_file]: (

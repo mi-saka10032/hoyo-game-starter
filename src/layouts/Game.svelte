@@ -2,7 +2,14 @@
   import { type UnlistenFn, listen, TauriEvent } from "@tauri-apps/api/event";
   import { onMount, onDestroy } from "svelte";
   import { checkResource } from "@/api";
-  import { HoyoClass, getStorage, setStorage, SYNC_EVENT_NAME } from "@/lib";
+  import {
+    HoyoClass,
+    getStorage,
+    setStorage,
+    SYNC_EVENT_NAME,
+    STATUS_STARTED,
+    STATUS_CLOSED,
+  } from "@/lib";
   import VersionTag from "@/components/VersionTag.svelte";
   import Directory from "@/components/Directory.svelte";
   import StarterButton from "@/components/StarterButton.svelte";
@@ -29,44 +36,15 @@
     processName
   );
 
-  let timer: number = 0;
-
   let launcherValidation = false;
-
   let gameValidation = false;
-
   let scriptValidation = false;
 
-  let processStatus: boolean = false;
+  let version = "";
+  let remoteVersion = "";
+  let hasPreDownload = false;
 
-  let version: string = "";
-
-  let remoteVersion: string = "";
-
-  let hasPreDownload: boolean = false;
-
-  /** 游戏进程监听 */
-  async function checkGameProcess() {
-    const flag = await hoyoClass.checkGameStatus();
-    if (flag && !processStatus) {
-      // 进程开启
-      HoyoClass.changeWindowStatus(false);
-    } else if (!flag && processStatus) {
-      closeWatch();
-      // 进程关闭
-      HoyoClass.changeWindowStatus(true);
-    }
-    processStatus = flag;
-  }
-
-  function openWatch(delay: number = 1000) {
-    timer = window.setInterval(checkGameProcess, delay);
-  }
-
-  function closeWatch() {
-    window.clearInterval(timer);
-    timer = 0;
-  }
+  let processStatus = false;
 
   /** 检查本地游戏版本 */
   async function checkLocalVersion() {
@@ -82,6 +60,7 @@
     hasPreDownload = result.hasPreDownload;
   }
 
+  /** 同步launcher路径 */
   function syncLauncherPath(event: Event) {
     const launcherProp = (event as unknown as CustomEvent<FileProp>).detail;
     const param: HoyoInterface = {
@@ -119,31 +98,55 @@
     }
   }
 
+  /** 指定游戏目录 */
   function handleSpecifyGamePath(event: CustomEvent<HoyoInterface>) {
     const result = event.detail;
     hoyoClass = new HoyoClass(result, processName);
     checkPath();
   }
 
-  function handleWatchProcess() {
-    closeWatch();
-    openWatch();
+  /** 开启游戏进程监听 */
+  async function startWatchGameProcess() {
+    hoyoClass.checkGameStatus();
   }
 
-  let unListen: UnlistenFn | null = null;
+  /** 游戏进程监听启动 */
+  function handleMonitorStarted(args: TauriWindowEvent<string>) {
+    if (args.event === STATUS_STARTED && args.payload === processName) {
+      processStatus = true;
+      HoyoClass.changeWindowStatus(false);
+    }
+  }
+
+  /** 游戏进程监听关闭 */
+  function handleMonitorClosed(args: TauriWindowEvent<string>) {
+    if (args.event === STATUS_CLOSED && args.payload === processName) {
+      processStatus = false;
+      HoyoClass.changeWindowStatus(true);
+    }
+  }
+
+  let focusListenFn: UnlistenFn | null = null;
+  let openWatchProcessFn: UnlistenFn | null = null;
+  let closeWatchProcessFn: UnlistenFn | null = null;
 
   onMount(async () => {
-    window.addEventListener(SYNC_EVENT_NAME, syncLauncherPath);
-    const persistData = getStorage(key);
     hoyoClass = new HoyoClass(getStorage(key), processName);
     checkPath();
-    unListen = await listen(TauriEvent.WINDOW_FOCUS, checkLocalVersion);
+
+    window.addEventListener(SYNC_EVENT_NAME, syncLauncherPath);
+    [focusListenFn, openWatchProcessFn, closeWatchProcessFn] = await Promise.all([
+      listen(TauriEvent.WINDOW_FOCUS, checkLocalVersion),
+      listen(STATUS_STARTED, handleMonitorStarted),
+      listen(STATUS_CLOSED, handleMonitorClosed),
+    ]);
   });
 
   onDestroy(() => {
     window.removeEventListener(SYNC_EVENT_NAME, syncLauncherPath);
-    closeWatch();
-    unListen && unListen();
+    focusListenFn && focusListenFn();
+    openWatchProcessFn && openWatchProcessFn();
+    closeWatchProcessFn && closeWatchProcessFn();
   });
 </script>
 
@@ -180,7 +183,7 @@
         />
       {/if}
       {#if gameValidation}
-        <StarterButton {hoyoClass} on:watch-process={handleWatchProcess} />
+        <StarterButton {hoyoClass} on:watch-process={startWatchGameProcess} />
       {/if}
     </div>
   {/if}

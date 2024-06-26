@@ -1,7 +1,13 @@
 import { invoke } from "@tauri-apps/api/tauri";
 import { Invoker, InvokerRequest } from "./invoker";
 
+// js-event
 export const SYNC_EVENT_NAME = "sync-launcher";
+
+// rust-event
+export const STATUS_STARTED = 'status-started';
+
+export const STATUS_CLOSED = 'status-closed';
 
 export class HoyoClass {
   public launcherProp: FileProp;
@@ -80,7 +86,7 @@ export class HoyoClass {
     const callback: InvokerRequest["check_game_status"] = (param) =>
       invoke(Invoker.check_game_status, param);
 
-    return callback({
+    callback({
       process: this.processName,
     });
   }
