@@ -43,3 +43,10 @@ interface FileProp extends InvokeParam {
   path: string;
   file: string;
 }
+
+interface TauriWindowEvent<T> {
+  event: string;
+  id: number;
+  payload: T;
+  windowLabel: string;
+}
