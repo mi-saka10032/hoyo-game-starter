@@ -26,13 +26,25 @@ interface HoyoInterface {
 
 interface StaticResource {
   data: {
-    game: {
-      latest: {
-        version: string
+    game_packages: [
+      {
+        game: {
+          id: string;
+          biz: string;
+        };
+        main: {
+          major: {
+            version: string;
+          };
+          patches: unknown[];
+        };
+        pre_download: {
+          major?: object;
+          patches: unknown[];
+        };
       }
-    }
-    pre_download_game?: object
-  }
+    ];
+  };
 }
 
 interface InvokeParam {
