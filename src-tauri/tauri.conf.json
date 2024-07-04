@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "Hoyo Game Starter",
-    "version": "1.0.5"
+    "version": "1.0.6"
   },
   "tauri": {
     "allowlist": {
@@ -72,8 +72,8 @@
         "resizable": false,
         "maximizable": false,
         "title": "Hoyo Game Starter",
-        "width": 1500,
-        "height": 360,
+        "width": 1000,
+        "height": 720,
         "hiddenTitle": true,
         "theme": "Light",
         "titleBarStyle": "Transparent",

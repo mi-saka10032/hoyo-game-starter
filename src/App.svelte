@@ -4,6 +4,7 @@
   import HonKai3BG from "./assets/bh3.jpg";
   import YuanShenBG from "./assets/ys.jpg";
   import StarRailBG from "./assets/star.jfif";
+  import ZZZBG from "./assets/zzz.jpg";
   import { getSyncStatus, setSyncStatus } from "./lib";
   import { onMount } from "svelte";
 
@@ -29,6 +30,14 @@
       gameCnName: "崩坏：星穹铁道",
       processName: "StarRail.exe",
     },
+
+    {
+      key: "zzz",
+      bg: ZZZBG,
+      gameEnName: "ZenlessZoneZero or HYG Launcher",
+      gameCnName: "绝区零",
+      processName: "ZenlessZoneZero.exe",
+    },
   ];
 
   let syncLauncher: boolean = false;
@@ -46,7 +55,7 @@
 
 <root class="flex flex-col h-full">
   <Header value={syncLauncher} on:change={changeSyncStatus} />
-  <main class="flex-1 grid grid-cols-3 text-white">
+  <main class="flex-1 grid grid-cols-2 text-white">
     {#each games as item, i (item.key)}
       <Game {...item} {syncLauncher} />
     {/each}

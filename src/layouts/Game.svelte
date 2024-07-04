@@ -81,11 +81,11 @@
       hoyoClass.checkGamePathValid(),
       hoyoClass.checkScriptPathValid(),
     ]);
+    checkRemoteVersion();
     if (launcherValidation && gameValidation && scriptValidation) {
       const gameInfo = hoyoClass.getHoyoInterface();
       setStorage(key, gameInfo);
       checkLocalVersion();
-      checkRemoteVersion();
     }
     if (syncLauncher) {
       const customEvent = new CustomEvent(syncEvent, {

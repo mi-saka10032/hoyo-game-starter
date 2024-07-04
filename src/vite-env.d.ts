@@ -5,6 +5,7 @@ declare enum GameKey {
   bh3 = "bh3",
   ys = "ys",
   star = "star",
+  zzz = "zzz",
 }
 
 interface GameItem {
@@ -38,7 +39,7 @@ interface StaticResource {
           };
           patches: unknown[];
         };
-        pre_download: {
+        pre_download?: {
           major?: object;
           patches: unknown[];
         };

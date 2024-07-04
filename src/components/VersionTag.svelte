@@ -16,7 +16,7 @@
 {#if remoteVersion.length > 0}
   <div class="absolute top-1 right-1 flex flex-col">
     <KTag type="success" cls="mb-2">
-      实际游戏版本是：{remoteVersion}
+      官方游戏版本是：{remoteVersion}
     </KTag>
     {#if hasPreDownload}
       <KTag type="warning">可下载预下载资源包</KTag>
