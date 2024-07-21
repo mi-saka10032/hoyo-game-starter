@@ -150,7 +150,7 @@
   });
 </script>
 
-<section class="relative flex flex-col opacity-80 hover:opacity-100">
+<section class="relative flex flex-col h-[22.5rem] opacity-80 hover:opacity-100">
   <img src={bg} alt={gameEnName} class="w-full h-full" draggable="false" />
   <VersionTag {version} {remoteVersion} {hasPreDownload} />
   <Directory
