@@ -25,6 +25,23 @@ interface HoyoInterface {
   scriptFile: string;
 }
 
+interface GamePackage {
+  url: string;
+  md5: string;
+  size: string; // -> number
+  decompressed_size: string; // -> number
+}
+
+interface AudioPackage extends GamePackage {
+  language: string;
+}
+
+interface GamePatch {
+  version: string;
+  game_pkgs: GamePackage[];
+  audio_pkgs: AudioPackage[];
+}
+
 interface StaticResource {
   data: {
     game_packages: [
@@ -37,11 +54,11 @@ interface StaticResource {
           major: {
             version: string;
           };
-          patches: unknown[];
+          patches: GamePatch[];
         };
         pre_download?: {
-          major?: object;
-          patches: unknown[];
+          major: object | null;
+          patches: GamePatch[];
         };
       }
     ];

@@ -5,9 +5,9 @@ import { Invoker, InvokerRequest } from "./invoker";
 export const SYNC_EVENT_NAME = "sync-launcher";
 
 // rust-event
-export const STATUS_STARTED = 'status-started';
+export const STATUS_STARTED = "status-started";
 
-export const STATUS_CLOSED = 'status-closed';
+export const STATUS_CLOSED = "status-closed";
 
 export class HoyoClass {
   public launcherProp: FileProp;
@@ -50,6 +50,13 @@ export class HoyoClass {
       invoke(Invoker.change_window_status, param);
 
     return callback({ status });
+  }
+
+  static openExplorerPath(path: string) {
+    const callback: InvokerRequest["open_explorer"] = (param) =>
+      invoke(Invoker.open_explorer, param);
+
+    return callback({ path });
   }
 
   public checkLauncherPathValid() {

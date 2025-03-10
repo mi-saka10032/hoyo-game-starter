@@ -2,6 +2,7 @@
   import { createEventDispatcher } from "svelte";
   import { KButton } from "@ikun-ui/button";
   import { KTooltip } from "@ikun-ui/tooltip";
+  import { KMessage } from "@ikun-ui/message";
   import AppointButton from "@/components/AppointButton.svelte";
   import { HoyoClass } from "@/lib";
 
@@ -49,6 +50,19 @@
       dispatch("specify-game-path", specifyExeFileParam);
     };
   }
+
+  function openExplorer(path: string) {
+    return async () => {
+      const isOpen = await HoyoClass.openExplorerPath(path);
+      if (!isOpen) {
+        KMessage({
+          type: "error",
+          content: "文件夹打开失败",
+          duration: 1000,
+        });
+      }
+    };
+  }
 </script>
 
 <div
@@ -57,18 +71,33 @@
   <h2>{gameCnName}</h2>
   {#if hoyoClass.launcherProp.path.length > 0}
     <p>已绑定{gameCnName}：</p>
-    <KTooltip placement="bottom" content={hoyoClass.launcherProp.path}>
-      <p slot="triggerEl" class="max-w-md truncate">
-        文件夹根目录：{hoyoClass.launcherProp.path}
-      </p>
+    <KTooltip
+      placement="bottom"
+      content={`单击打开${hoyoClass.launcherProp.path}`}
+    >
+      <div slot="triggerEl" class="max-w-md truncate">
+        <KButton
+          type="success"
+          size="sm"
+          on:click={openExplorer(hoyoClass.launcherProp.path)}
+        >
+          文件夹根目录：{hoyoClass.launcherProp.path}
+        </KButton>
+      </div>
     </KTooltip>
     {#if exeFileValidation}
       <KTooltip
         placement="bottom"
-        content={`${hoyoClass.scriptProp.path}\\${hoyoClass.scriptProp.file}`}
+        content={`单击打开${hoyoClass.scriptProp.path}\\${hoyoClass.scriptProp.file}`}
       >
         <p slot="triggerEl" class="max-w-md truncate">
-          exe运行文件目录：{`${hoyoClass.scriptProp.path}\\${hoyoClass.scriptProp.file}`}
+          <KButton
+            type="success"
+            size="sm"
+            on:click={openExplorer(hoyoClass.scriptProp.path)}
+          >
+            exe运行文件目录：{`${hoyoClass.scriptProp.path}\\${hoyoClass.scriptProp.file}`}
+          </KButton>
         </p>
       </KTooltip>
     {:else}

@@ -29,7 +29,7 @@ pub fn menu() -> SystemTray {
         .add_item(CustomMenuItem::new("quit".to_string(), "退出")); // 退出
 
     // 设置在右键单击系统托盘时显示菜单
-    SystemTray::new().with_menu(tray_menu)
+    SystemTray::new().with_menu(tray_menu).with_tooltip("Hoyo Game Starter")
 }
 
 // 菜单事件

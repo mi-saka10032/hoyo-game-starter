@@ -60,6 +60,11 @@
     hasPreDownload = result.hasPreDownload;
   }
 
+  function checkDoubleEndedVersion() {
+    checkLocalVersion();
+    checkRemoteVersion();
+  }
+
   /** 同步launcher路径 */
   function syncLauncherPath(event: Event) {
     const launcherProp = (event as unknown as CustomEvent<FileProp>).detail;
@@ -81,11 +86,10 @@
       hoyoClass.checkGamePathValid(),
       hoyoClass.checkScriptPathValid(),
     ]);
-    checkRemoteVersion();
     if (launcherValidation && gameValidation && scriptValidation) {
       const gameInfo = hoyoClass.getHoyoInterface();
       setStorage(key, gameInfo);
-      checkLocalVersion();
+      checkDoubleEndedVersion();
     }
     if (syncLauncher) {
       const customEvent = new CustomEvent(syncEvent, {
@@ -136,7 +140,7 @@
 
     window.addEventListener(SYNC_EVENT_NAME, syncLauncherPath);
     [focusListenFn, openWatchProcessFn, closeWatchProcessFn] = await Promise.all([
-      listen(TauriEvent.WINDOW_FOCUS, checkLocalVersion),
+      listen(TauriEvent.WINDOW_FOCUS, checkDoubleEndedVersion),
       listen(STATUS_STARTED, handleMonitorStarted),
       listen(STATUS_CLOSED, handleMonitorClosed),
     ]);

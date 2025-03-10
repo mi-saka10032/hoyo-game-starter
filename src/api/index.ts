@@ -20,12 +20,12 @@ export const checkResource = async (key: GameKey) => {
   };
   try {
     const { data } = await fetch<StaticResource>(url);
-    console.log(data);
     checkRes.remoteVersion = data.data.game_packages?.[0].main.major.version;
     checkRes.hasPreDownload =
       data.data.game_packages?.[0].pre_download?.major != null;
   } catch (error) {
     console.log(error);
   }
+  console.log(checkRes);
   return checkRes;
 };

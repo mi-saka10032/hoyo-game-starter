@@ -6,6 +6,7 @@ export enum Invoker {
   pick_exe_file = "pick_exe_file",
   pick_launcher_file = "pick_launcher_file",
   read_local_version = "read_local_version",
+  open_explorer = "open_explorer",
 }
 
 export type InvokerRequest = {
@@ -22,4 +23,5 @@ export type InvokerRequest = {
   ) => Promise<FileProp>;
   [Invoker.pick_launcher_file]: (fileProp: FileProp) => Promise<FileProp>;
   [Invoker.read_local_version]: (fileProp: FileProp) => Promise<string>;
+  [Invoker.open_explorer]: ({ path }: { path: string }) => Promise<boolean>;
 };

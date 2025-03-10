@@ -7,6 +7,7 @@ mod tray;
 
 use std::{
     collections::HashSet,
+    process::Command,
     sync::{Arc, Mutex},
 };
 
@@ -58,6 +59,11 @@ fn open_exe_file(path: &str, file: &str) -> bool {
 }
 
 #[tauri::command]
+fn open_explorer(path: &str) -> bool {
+    Command::new("explorer").arg(path).spawn().is_ok()
+}
+
+#[tauri::command]
 fn pick_exe_file(path: &str, file: &str, need_check_config: bool) -> HoyoProp {
     let mut prop = HoyoProp::new(path, file);
     prop.specify_exe_file(need_check_config);
@@ -92,6 +98,7 @@ fn main() {
             pick_exe_file,
             pick_launcher_file,
             read_local_version,
+            open_explorer,
         ])
         .system_tray(tray::menu())
         .on_system_tray_event(tray::handler)
