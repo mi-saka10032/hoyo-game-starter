@@ -15,7 +15,6 @@ use monitor::monitor_process;
 use tauri::{Manager, State, Window};
 use tray::{show_window, SingleInstancePayload};
 
-/** 改变窗口可见状态 */
 #[tauri::command]
 fn change_window_status(window: Window, status: bool) {
     if status {
@@ -25,7 +24,6 @@ fn change_window_status(window: Window, status: bool) {
     }
 }
 
-/** 检测游戏进程状态 */
 #[tauri::command]
 async fn check_game_status(
     window: Window,
@@ -33,29 +31,22 @@ async fn check_game_status(
     state: State<'_, Arc<Mutex<HashSet<String>>>>,
 ) -> Result<(), String> {
     let process_name = process.to_string();
-    let mut prefix_state = state.lock().map_err(|e| e.to_string())?;
+    let mut set = state.lock().unwrap();
 
-    if prefix_state.insert(String::clone(&process_name)) {
-        drop(prefix_state);
-        let state_clone = Arc::clone(&state.inner());
+    if set.insert(String::from(&process_name)) {
+        let state_clone = Arc::clone(&state);
 
         tokio::spawn(async move {
             monitor_process(window, &process_name).await;
 
-            match state_clone.lock() {
-                Ok(mut suffix_state) => {
-                    suffix_state.remove(&process_name);
-                    drop(suffix_state);
-                }
-                Err(_) => {}
-            }
+            let mut set = state_clone.lock().unwrap();
+            set.remove(&process_name);
         });
     }
 
     Ok(())
 }
 
-/** 检测路径有效性 */
 #[tauri::command]
 fn check_path_valid(path: &str, file: &str) -> bool {
     HoyoProp::new(path, file).check_path_valid()
